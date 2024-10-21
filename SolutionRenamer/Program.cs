@@ -25,9 +25,10 @@ if (File.Exists(translationFile))
     }
 }
 
-foreach (var p in sln.Projects)
+foreach (var pid in sln.ProjectIds.ToList())
 {
     // Skip test projects
+    var p = sln.GetProject(pid);
     if (p.Name.Contains(".Tests.")) continue;
 
     foreach (var d in p.Documents)
@@ -93,7 +94,11 @@ async Task Process(SemanticModel model, CompilationUnitSyntax cus)
             classNames.Add(semanticNode.Name);
             if (translation.TryGetValue(semanticNode.Name, out var translatedName))
             {
-                await Renamer.RenameSymbolAsync(sln, semanticNode, new SymbolRenameOptions() { RenameFile = true, RenameInComments = true, RenameOverloads = true }, translatedName);
+                var newSln = await Renamer.RenameSymbolAsync(sln, semanticNode, new SymbolRenameOptions() { RenameFile = true, RenameInComments = true, RenameOverloads = true }, translatedName);
+                if (w.TryApplyChanges(newSln))
+                {
+                    sln = newSln;
+                }
             }
         }
         if (m is MethodDeclarationSyntax)
@@ -102,7 +107,8 @@ async Task Process(SemanticModel model, CompilationUnitSyntax cus)
             classNames.Add(semanticNode.Name);
             if (translation.TryGetValue(semanticNode.Name, out var translatedName))
             {
-                await Renamer.RenameSymbolAsync(sln, semanticNode, new SymbolRenameOptions() { RenameFile = true, RenameInComments = true, RenameOverloads = true }, translatedName);
+                sln = await Renamer.RenameSymbolAsync(sln, semanticNode, new SymbolRenameOptions() { RenameFile = true, RenameInComments = true, RenameOverloads = true }, translatedName);
+                w.TryApplyChanges(sln);
             }
         }
         if (m is ParameterSyntax)
@@ -111,7 +117,8 @@ async Task Process(SemanticModel model, CompilationUnitSyntax cus)
             classNames.Add(semanticNode.Name);
             if (translation.TryGetValue(semanticNode.Name, out var translatedName))
             {
-                await Renamer.RenameSymbolAsync(sln, semanticNode, new SymbolRenameOptions() { RenameFile = true, RenameInComments = true, RenameOverloads = true }, translatedName);
+                sln = await Renamer.RenameSymbolAsync(sln, semanticNode, new SymbolRenameOptions() { RenameFile = true, RenameInComments = true, RenameOverloads = true }, translatedName);
+                w.TryApplyChanges(sln);
             }
         }
         if (m is PropertyDeclarationSyntax)
@@ -120,7 +127,8 @@ async Task Process(SemanticModel model, CompilationUnitSyntax cus)
             classNames.Add(semanticNode.Name);
             if (translation.TryGetValue(semanticNode.Name, out var translatedName))
             {
-                await Renamer.RenameSymbolAsync(sln, semanticNode, new SymbolRenameOptions() { RenameFile = true, RenameInComments = true, RenameOverloads = true }, translatedName);
+                sln = await Renamer.RenameSymbolAsync(sln, semanticNode, new SymbolRenameOptions() { RenameFile = true, RenameInComments = true, RenameOverloads = true }, translatedName);
+                w.TryApplyChanges(sln);
             }
         }
         if (m is FieldDeclarationSyntax fieldDeclarationSyntax)
@@ -131,7 +139,8 @@ async Task Process(SemanticModel model, CompilationUnitSyntax cus)
                 classNames.Add(semanticNode.Name);
                 if (translation.TryGetValue(semanticNode.Name, out var translatedName))
                 {
-                    await Renamer.RenameSymbolAsync(sln, semanticNode, new SymbolRenameOptions() { RenameFile = true, RenameInComments = true, RenameOverloads = true }, translatedName);
+                    sln = await Renamer.RenameSymbolAsync(sln, semanticNode, new SymbolRenameOptions() { RenameFile = true, RenameInComments = true, RenameOverloads = true }, translatedName);
+                    w.TryApplyChanges(sln);
                 }
             }
         }
@@ -141,7 +150,8 @@ async Task Process(SemanticModel model, CompilationUnitSyntax cus)
             classNames.Add(semanticNode.Name);
             if (translation.TryGetValue(semanticNode.Name, out var translatedName))
             {
-                await Renamer.RenameSymbolAsync(sln, semanticNode, new SymbolRenameOptions() { RenameFile = true, RenameInComments = true, RenameOverloads = true }, translatedName);
+                sln = await Renamer.RenameSymbolAsync(sln, semanticNode, new SymbolRenameOptions() { RenameFile = true, RenameInComments = true, RenameOverloads = true }, translatedName);
+                w.TryApplyChanges(sln);
             }
         }
     }
